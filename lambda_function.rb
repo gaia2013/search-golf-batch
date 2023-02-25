@@ -3,7 +3,7 @@ require "rakuten_web_service"
 require "aws-record"
 
 class SearchGolfApp # DynamoDBのテーブル名
-include AWS:Record
+include Aws::Record
 integer_attr :golf_course_id, hash_key: true
 integer_attr :duration1 # 基準地点１からの所要時間
 integer_attr :duration2 # 基準地点２からの所要時間
@@ -23,7 +23,7 @@ end
 def duration_minutes(departure,destination)
   # Google Maps Platformを使って出発地点とゴルフ場の車での移動時間を出す
   gmaps=GoogleMapsService::Client.new(key:ENV["GOOGLE_MAP_API_KEY"])
-  routes=gmapls.directions(
+  routes=gmaps.directions(
     departure,destination,region:"jp"
   )
   return unless routes.first #ルートが存在しないときはnilを返す（東京の離島など）
@@ -59,7 +59,7 @@ def lambda_handler(event:, context:)
 
         #2.出発地点から取得したゴルフ場までの所要時間をGoogleMapsPlatformdで取得する
         durations={}
-        Departure::DEPARTURES.each do |duraton_id, departure|
+        Departure::DEPARTURES.each do |duration_id, departure|
           minutes=duration_minutes(departure, course_name)
           durations.store(duration_id, minutes) if minutes
         end
